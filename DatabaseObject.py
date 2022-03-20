@@ -1,7 +1,7 @@
 # Base class for objects stored in database.
 
 import sqlite3
-from .. import DatabaseException
+from . import DatabaseException
 
 
 class DatabaseObject:
@@ -94,6 +94,14 @@ class DatabaseObject:
             self._update(subset)
         else:
             self._insert(subset)
+
+
+    def select(self, where):
+        """
+        Run a 'getmany' operation on the database with the given string
+        as the 'WHERE' clause.
+        """
+        return self.db.getmany(f"SELECT * FROM `{self._table}` WHERE {where}")
 
 
     def todict(self, subset=None):
