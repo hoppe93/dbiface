@@ -12,6 +12,21 @@ class Database:
         self.cursor = self.connection.cursor()
 
 
+    def __enter__(self):
+        """
+        Called when entering a "with" statement.
+        """
+        return self
+
+
+    def __exit__(self):
+        """
+        Called when leaving a "with" statement.
+        """
+        self.connection.close()
+        return True
+
+
     def create_tables(self, *objs):
         """
         Create tables for the given classes.

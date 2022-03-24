@@ -18,6 +18,13 @@ class SqliteDatabase(Database):
         super().__init__(connection=connection)
 
 
+    def close(self):
+        """
+        Close the database connection.
+        """
+        self.connection.close()
+
+
     def getcolumns(self, table):
         """
         Returns a list of columns for the named table.
