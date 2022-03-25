@@ -56,7 +56,7 @@ class SqliteDatabaseCreator(DatabaseCreator):
         """
         Add a column to this creator.
         """
-        sql = f"{name} "
+        sql = f"`{name}` "
 
         if type(ttype) == str:
             sql += ttype

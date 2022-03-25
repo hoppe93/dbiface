@@ -23,8 +23,16 @@ class Database:
         """
         Called when leaving a "with" statement.
         """
+        self.close()
+        return (exc_type is None)
+
+
+    def close(self):
+        """
+        Close the database connection.
+        """
+        self.connection.commit()
         self.connection.close()
-        return True
 
 
     def create_tables(self, *objs):
@@ -42,13 +50,17 @@ class Database:
         """
         Execute a single SQL command.
         """
-        if replace is None:
-            c = self.cursor.execute(sql)
-        else:
-            c = self.cursor.execute(sql, replace)
+        try:
+            if replace is None:
+                c = self.cursor.execute(sql)
+            else:
+                c = self.cursor.execute(sql, replace)
 
-        if commit:
-            self.connection.commit()
+            if commit:
+                self.connection.commit()
+        except Exception as ex:
+            print(f'{sql}')
+            raise ex
 
         return c
 
@@ -57,7 +69,13 @@ class Database:
         """
         Execute an SQL script (one or more statements).
         """
-        return self.cursor.executescript(sql)
+        try:
+            v = self.cursor.executescript(sql)
+        except Exception as ex:
+            print(f'{sql}')
+            raise ex
+
+        return v
 
 
     def getall(self, ttype):

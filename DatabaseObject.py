@@ -127,7 +127,7 @@ class DatabaseObject:
         for col in subset:
             if col == 'id': continue
 
-            p += f'{col}, '
+            p += f'`{col}`, '
             v += f':{col}, '
 
         p = '('+p[:-2]+')'
@@ -143,7 +143,7 @@ class DatabaseObject:
         """
         q = f'UPDATE `{self._table}` SET '
         for col in subset:
-            q += f'{col} = :{col}, '
+            q += f'`{col}` = :{col}, '
 
         self._db.execute(q[:-2], self.todict(subset=subset), commit=True)
 
