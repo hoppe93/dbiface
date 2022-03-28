@@ -40,6 +40,14 @@ class SqliteDatabase(Database):
         """
         return SqliteDatabaseCreator()
 
+    
+    def hasid(self, table, oid):
+        """
+        Check if the given table contains a row with id 'id'.
+        """
+        v = self.execute(f"SELECT COUNT(*) FROM `{table}` WHERE `id` = ?", (oid,))
+        data = self.cursor.fetchone()[0]
+        return (data != 0)
 
 
 class SqliteDatabaseCreator(DatabaseCreator):

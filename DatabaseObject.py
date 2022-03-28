@@ -91,7 +91,10 @@ class DatabaseObject:
             subset = self._cols
 
         if self.id != None:
-            self._update(subset)
+            if self._db.hasid(table=self._table, oid=self.id):
+                self._update(subset)
+            else:
+                self._insert(subset, force_insert=True)
         else:
             self._insert(subset)
 
@@ -101,7 +104,7 @@ class DatabaseObject:
         Run a 'getmany' operation on the database with the given string
         as the 'WHERE' clause.
         """
-        return self.db.getmany(f"SELECT * FROM `{self._table}` WHERE {where}")
+        return self._db.getmany(f"SELECT * FROM `{self._table}` WHERE {where}")
 
 
     def todict(self, subset=None):
@@ -118,14 +121,14 @@ class DatabaseObject:
         return v
 
 
-    def _insert(self, subset):
+    def _insert(self, subset, force_insert=False):
         """
         Issue an SQL INSERT INTO query for this object.
         """
         q = f'INSERT INTO `{self._table}` '
         p, v = '', ''
         for col in subset:
-            if col == 'id': continue
+            if col == 'id' and not force_insert: continue
 
             p += f'`{col}`, '
             v += f':{col}, '
@@ -133,7 +136,8 @@ class DatabaseObject:
         p = '('+p[:-2]+')'
         v = '('+v[:-2]+')'
 
-        self._db.execute(q+p+' VALUES '+v, self.todict(subset), commit=True)
+        sql = q+p+' VALUES '+v
+        self._db.execute(sql, self.todict(subset), commit=True)
         self.id = self._db.getlastid()
 
 
@@ -143,8 +147,13 @@ class DatabaseObject:
         """
         q = f'UPDATE `{self._table}` SET '
         for col in subset:
+            if col == 'id': continue
+
             q += f'`{col}` = :{col}, '
 
-        self._db.execute(q[:-2], self.todict(subset=subset), commit=True)
+        q = q[:-2]
+        q += ' WHERE id = :id'
+
+        self._db.execute(q, self.todict(subset=subset), commit=True)
 
 

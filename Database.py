@@ -108,3 +108,10 @@ class Database:
         return self.cursor.lastrowid
 
 
+    def hasid(self, table, id):
+        """
+        Check if the given table contains a row with id 'id'.
+        """
+        raise DatabaseException("The method 'hasid()' has not been implemented for this database.")
+
+
