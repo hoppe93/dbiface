@@ -62,7 +62,7 @@ class Database:
             print(f'{sql}')
             raise ex
 
-        return c
+        return [r for r in c]
 
 
     def executescript(self, sql):
@@ -86,11 +86,57 @@ class Database:
         return [ttype(self, _row=r) for r in self.execute(q)]
 
 
-    def getmany(self, ttype, sql):
+    def getcount(self, ttype, **kwargs):
+        """
+        Returns the number of entries of the given type. Keyword arguments
+        can be specified to give conditions for the rows to select.
+        """
+        sql = f"SELECT COUNT(*) FROM `{ttype._table}`"
+        if len(kwargs) > 0:
+            sql += "WHERE "
+            for k in kwargs.keys():
+                sql += f"{k} = :{k} AND "
+            sql = sql[:-5]
+
+        nrows = self.execute(sql)[0][0]
+        return nrows
+
+
+    def getlist(self, ttype, first=None, limit=20, sort='DESC', offset=0):
+        """
+        Return a list of objects of the specified type, limiting the
+        result to 'limit' entries. If 'first' is given, the first
+        entry will have less (greater) than or equal to this ID if
+        'sort' is DESC (ASC).
+        """
+        d = {'limit':limit}
+
+        if sort.lower() == 'asc':
+            sortorder = 'ASC'
+        else:
+            sortorder = 'DESC'
+
+        q = f'SELECT * FROM `{ttype._table}` ORDER BY `id` {sortorder} LIMIT :limit'
+        if first:
+            q += ' WHERE id '
+            if sort == 'DESC':
+                q += f'<= :first'
+            else:
+                q += f'>= :first'
+            d['first'] = first
+        elif offset > 0:
+            q += ' OFFSET :offset'
+            d['offset'] = offset
+
+        l = self.getmany(ttype, q, d)
+        return l
+
+
+    def getmany(self, ttype, sql, params=None):
         """
         Return all objects of the specified type in the database.
         """
-        return [ttype(self, _row=r) for r in self.execute(sql)]
+        return [ttype(self, _row=r) for r in self.execute(sql, params)]
 
 
     def getcolumns(self, table):
