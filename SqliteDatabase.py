@@ -41,13 +41,23 @@ class SqliteDatabase(Database):
         return SqliteDatabaseCreator()
 
     
-    def hasid(self, table, oid):
+    def hasrow(self, table, **kwargs):
         """
         Check if the given table contains a row with id 'id'.
         """
-        v = self.execute(f"SELECT COUNT(*) FROM `{table}` WHERE `id` = ?", (oid,))
-        data = self.cursor.fetchone()[0]
-        return (data != 0)
+        if type(table) == str:
+            tbl = table
+        else:
+            tbl = table._table
+
+        sql = f"SELECT COUNT(*) FROM `{tbl}` WHERE "
+        c = None
+        for k in kwargs.keys():
+            if not c: c = f"{k} = :{k}"
+            else: c += f" AND {k} = :{k}"
+
+        v = self.execute(sql+c, kwargs)
+        return (v[0][0] != 0)
 
 
 class SqliteDatabaseCreator(DatabaseCreator):

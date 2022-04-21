@@ -91,7 +91,7 @@ class DatabaseObject:
             subset = self._cols
 
         if self.id != None:
-            if self._db.hasid(table=self._table, oid=self.id):
+            if self._db.hasid(table=self._table, id=self.id):
                 self._update(subset)
             else:
                 self._insert(subset, force_insert=True)

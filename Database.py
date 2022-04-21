@@ -158,6 +158,14 @@ class Database:
         """
         Check if the given table contains a row with id 'id'.
         """
+        return self.hasrow(table=table, id=id)
+
+
+    def hasrow(self, table, **kwargs):
+        """
+        Check if the given table contains one or more rows with the given
+        column values.
+        """
         raise DatabaseException("The method 'hasid()' has not been implemented for this database.")
 
 
