@@ -38,6 +38,26 @@ class DatabaseObject:
         self._db.executescript(self._sql)
 
 
+    def delete(self):
+        """
+        Delete this object from the database.
+        """
+        self._db.execute(f'DELETE FROM `{self._table}` WHERE id = :id', {'id':self.id})
+
+
+    @classmethod
+    def deleteAll(cls, db, **kwargs):
+        """
+        Delete all objects for which the given list of keywords match.
+        """
+        sql = f'DELETE FROM `{cls._table}` WHERE '
+        for k in kwargs:
+            sql += f'{k} = :{k} AND '
+
+        sql = sql[:-5]
+        return db.execute(sql, kwargs)
+
+
     def get(self, limit=None, order=None, orderorder='DESC', **kwargs):
         """
         Load data from the table of this object and populate
@@ -153,6 +173,9 @@ class DatabaseObject:
 
         q = q[:-2]
         q += ' WHERE id = :id'
+
+        if 'id' not in subset:
+            subset.append('id')
 
         self._db.execute(q, self.todict(subset=subset), commit=True)
 

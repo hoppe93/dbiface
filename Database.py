@@ -102,7 +102,7 @@ class Database:
         return nrows
 
 
-    def getlist(self, ttype, first=None, limit=20, sort='DESC', offset=0):
+    def getlist(self, ttype, first=None, limit=20, sort='DESC', offset=0, where=None):
         """
         Return a list of objects of the specified type, limiting the
         result to 'limit' entries. If 'first' is given, the first
@@ -116,7 +116,8 @@ class Database:
         else:
             sortorder = 'DESC'
 
-        q = f'SELECT * FROM `{ttype._table}` ORDER BY `id` {sortorder} LIMIT :limit'
+        q = f'SELECT * FROM `{ttype._table}` '
+        hasWhere = False
         if first:
             q += ' WHERE id '
             if sort == 'DESC':
@@ -124,9 +125,26 @@ class Database:
             else:
                 q += f'>= :first'
             d['first'] = first
+
+            hasWhere = True
         elif offset > 0:
             q += ' OFFSET :offset'
             d['offset'] = offset
+
+        if where:
+            if not hasWhere:
+                q += ' WHERE '
+            else:
+                q += ' AND '
+
+            for w in where:
+                q += f'{w} = :{w} AND '
+
+            # Remove final ' AND '
+            q = q[:-5]
+            d = {**d, **where}
+
+        q += f' ORDER BY `id` {sortorder} LIMIT :limit'
 
         l = self.getmany(ttype, q, d)
         return l
