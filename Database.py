@@ -98,7 +98,7 @@ class Database:
                 sql += f"{k} = :{k} AND "
             sql = sql[:-5]
 
-        nrows = self.execute(sql)[0][0]
+        nrows = self.execute(sql, kwargs)[0][0]
         return nrows
 
 
