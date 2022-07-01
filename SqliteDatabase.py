@@ -3,7 +3,9 @@
 import sqlite3
 from datetime import datetime
 
-from . import Database, DatabaseCreator, DatabaseException
+from . Database import Database
+from . DatabaseCreator import DatabaseCreator
+from . DatabaseException import DatabaseException
 
 
 class SqliteDatabase(Database):

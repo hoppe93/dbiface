@@ -1,7 +1,7 @@
 # Base class for objects stored in database.
 
 import sqlite3
-from . import DatabaseException
+from .DatabaseException import DatabaseException
 
 
 class DatabaseObject:
