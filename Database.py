@@ -117,25 +117,25 @@ class Database:
             sortorder = 'DESC'
 
         q = f'SELECT * FROM `{ttype._table}` '
-        hasWhere = False
+        _where = []
+        _offset = ''
         if first:
-            q += ' WHERE id '
+            w = 'id '
             if sort == 'DESC':
-                q += f'<= :first'
+                w += f'<= :first'
             else:
-                q += f'>= :first'
+                w += f'>= :first'
+            _where.append(w)
             d['first'] = first
-
-            hasWhere = True
         elif offset > 0:
-            q += ' OFFSET :offset'
+            _offset = ' OFFSET :offset'
             d['offset'] = offset
 
-        if where:
-            if not hasWhere:
-                q += ' WHERE '
-            else:
-                q += ' AND '
+        if where or _where:
+            q += ' WHERE '
+
+            for w in _where:
+                q += f'{w} AND '
 
             for w in where:
                 q += f'{w} = :{w} AND '
@@ -144,7 +144,7 @@ class Database:
             q = q[:-5]
             d = {**d, **where}
 
-        q += f' ORDER BY `id` {sortorder} LIMIT :limit'
+        q += f' ORDER BY `id` {sortorder} LIMIT :limit '+_offset
 
         l = self.getmany(ttype, q, d)
         return l
