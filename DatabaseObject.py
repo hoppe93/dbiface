@@ -42,7 +42,7 @@ class DatabaseObject:
         """
         Delete this object from the database.
         """
-        self._db.execute(f'DELETE FROM `{self._table}` WHERE id = :id', {'id':self.id})
+        self._db.execute(f'DELETE FROM `{self._table}` WHERE id = :id', {'id':self.id}, commit=True)
 
 
     @classmethod
